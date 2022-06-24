@@ -1,0 +1,19 @@
+left_cam_driver:
+  address: 192.168.2.160
+  port: 6766
+  topic: camera/left
+  is_depth_img: false
+right_cam_driver:
+  address: 192.168.2.160
+  port: 6767
+  topic: camera/rigth
+  is_depth_img: false
+depth_cam_driver:
+  address: 192.168.2.160
+  port: 6768
+  topic: camera/depth
+  is_depth_img: true
+imu_driver:
+  address: 192.168.2.160
+  port: 6769
+  topic: imu

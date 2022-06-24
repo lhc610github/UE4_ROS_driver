@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="robot" default="drone1"/>
+    <arg name="manager" default="$(arg robot)_driver_manager"/>
+	<group ns="$(arg robot)">
+		<!-- nodelet manager -->
+		<node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"/>
+        <!-- sensors plugin -->
+		<rosparam file="$(find ue4_ros_drivers)/config/node.yaml"/>
+		<node pkg="nodelet" type="nodelet" name="left_cam_driver" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="right_cam_driver" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="depth_cam_driver" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="imu_driver" args="load us4_ros_drivers/ImuDriver $(arg manager)" output="screen"/>
+	</group>
+</launch>

@@ -1,0 +1,15 @@
+<library path="lib/libimage_driver_nodelet">
+  <class name="us4_ros_drivers/ImageDriver" type="ImageDriver" base_class_type="nodelet::Nodelet">
+    <description>
+        image driver plugin
+    </description>
+  </class>
+</library>
+
+<library path="lib/libimu_driver_nodelet">
+  <class name="us4_ros_drivers/ImuDriver" type="ImuDriver" base_class_type="nodelet::Nodelet">
+    <description>
+        image driver plugin
+    </description>
+  </class>
+</library>

@@ -9,7 +9,15 @@
 <library path="lib/libimu_driver_nodelet">
   <class name="us4_ros_drivers/ImuDriver" type="ImuDriver" base_class_type="nodelet::Nodelet">
     <description>
-        image driver plugin
+        imu driver plugin
+    </description>
+  </class>
+</library>
+
+<library path="lib/liblidar_driver_nodelet">
+  <class name="us4_ros_drivers/LidarDriver" type="LidarDriver" base_class_type="nodelet::Nodelet">
+    <description>
+        lidar driver plugin
     </description>
   </class>
 </library>

@@ -7,9 +7,10 @@
 		<node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"/>
         <!-- sensors plugin -->
 		<rosparam file="$(find ue4_ros_drivers)/config/node.yaml"/>
-		<node pkg="nodelet" type="nodelet" name="left_cam_driver" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
-		<node pkg="nodelet" type="nodelet" name="right_cam_driver" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
-		<node pkg="nodelet" type="nodelet" name="depth_cam_driver" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
-		<node pkg="nodelet" type="nodelet" name="imu_driver" args="load us4_ros_drivers/ImuDriver $(arg manager)" output="screen"/>
+		<!-- <node pkg="nodelet" type="nodelet" name="left_camera" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="right_camera" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="depth_camera" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/> -->
+		<node pkg="nodelet" type="nodelet" name="imu" args="load us4_ros_drivers/ImuDriver $(arg manager)" output="screen"/>
+		<!-- <node pkg="nodelet" type="nodelet" name="lidar" args="load us4_ros_drivers/LidarDriver $(arg manager)" output="screen"/> -->
 	</group>
 </launch>

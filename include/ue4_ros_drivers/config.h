@@ -15,6 +15,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/PointField.h>
+#include <mavros_msgs/AttitudeTarget.h>
 
 #define ROW 480
 #define COL 640
@@ -48,6 +49,11 @@ typedef struct {
     point_t point_cloud[LIDAR_BUF_SIZE];
 } lidar_data_t;
 
+typedef struct {
+    uint64_t timestamp;
+    float attitude_setpoint[4]; // x y z w
+    float throttle_setpoint; // 0-1
+} control_cmd_t;
 
 sensor_msgs::Image imge_data_decode(unsigned char* data) {
     img_data_t* decode_data = (img_data_t*)(data);
@@ -132,6 +138,19 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
     std::vector<unsigned char> lidar_msg_data(bytes, bytes + sizeof(point_t) * LIDAR_BUF_SIZE);
     lidar_msg.data = std::move(lidar_msg_data);
     return lidar_msg;
+}
+
+std::vector<unsigned char> control_cmd_encode(const mavros_msgs::AttitudeTarget& msg) {
+    control_cmd_t encode_msg;
+    encode_msg.timestamp = (uint64_t)(msg.header.stamp.toNSec());
+    encode_msg.attitude_setpoint[0] = msg.orientation.x;
+    encode_msg.attitude_setpoint[1] = msg.orientation.y;
+    encode_msg.attitude_setpoint[2] = msg.orientation.z;
+    encode_msg.attitude_setpoint[3] = msg.orientation.w;
+    encode_msg.throttle_setpoint = std::min(std::max(msg.thrust, 0.0f), 1.0f);
+    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(&encode_msg);
+    std::vector<unsigned char> encode_bytes(bytes, bytes + sizeof(control_cmd_t));
+    return encode_bytes;
 }
 
 #endif

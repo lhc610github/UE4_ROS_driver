@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   sensor_msgs
+  mavros_msgs
 )
 
 catkin_package(
@@ -27,6 +28,7 @@ catkin_package(
   pluginlib
   nav_msgs
   geometry_msgs
+  mavros_msgs
 )
 
 include_directories(
@@ -63,6 +65,17 @@ add_dependencies(lidar_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAM
 
 install(
 TARGETS lidar_driver_nodelet 
+ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+add_library(control_driver_nodelet src/control_driver_nodelet.cpp)
+target_include_directories(control_driver_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(control_driver_nodelet PUBLIC ${catkin_LIBRARIES})# Eigen3::Eigen)
+add_dependencies(control_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+install(
+TARGETS control_driver_nodelet 
 ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

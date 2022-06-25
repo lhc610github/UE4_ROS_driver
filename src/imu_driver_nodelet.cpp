@@ -41,17 +41,12 @@ void ImuDriver::onInit() {
 
 void ImuDriver::threadCB(const ros::TimerEvent&) {
     std::cout << "Start receiving imu data from " << IP_ADRR_ << ":" << IP_PORT_ << std::endl;
-    int sockfd, opt, valread;
+    int sockfd, valread;
     struct sockaddr_in servaddr;
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0)
         std::cout << "ERROR open socket" << std::endl;
-
-    opt = 1;
-    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        std::cout << "Socket set wrong" << std::endl;
-    }
 
     servaddr.sin_family    = AF_INET;
     servaddr.sin_port = htons(IP_PORT_); 

@@ -21,3 +21,11 @@
     </description>
   </class>
 </library>
+
+<library path="lib/libcontrol_driver_nodelet">
+  <class name="us4_ros_drivers/ControlDriver" type="ControlDriver" base_class_type="nodelet::Nodelet">
+    <description>
+        att controller driver plugin
+    </description>
+  </class>
+</library>

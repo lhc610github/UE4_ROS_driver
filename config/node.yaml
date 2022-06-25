@@ -21,3 +21,7 @@ lidar:
   address: 192.168.2.160
   port: 6770
   topic: scan
+att_controller:
+  address: 192.168.2.160
+  port: 6771
+  topic: control_cmd

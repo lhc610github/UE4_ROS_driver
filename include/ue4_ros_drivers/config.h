@@ -17,6 +17,8 @@
 #include <sensor_msgs/PointField.h>
 #include <mavros_msgs/AttitudeTarget.h>
 
+#include "geometry_math_type.h"
+
 #define ROW 480
 #define COL 640
 #define MB_LEN 1048576
@@ -51,7 +53,7 @@ typedef struct {
 
 typedef struct {
     uint64_t timestamp;
-    float attitude_setpoint[4]; // x y z w
+    float attitude_setpoint[3]; // roll pitch yaw
     float throttle_setpoint; // 0-1
 } control_cmd_t;
 
@@ -143,10 +145,20 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
 std::vector<unsigned char> control_cmd_encode(const mavros_msgs::AttitudeTarget& msg) {
     control_cmd_t encode_msg;
     encode_msg.timestamp = (uint64_t)(msg.header.stamp.toNSec());
-    encode_msg.attitude_setpoint[0] = msg.orientation.x;
-    encode_msg.attitude_setpoint[1] = msg.orientation.y;
-    encode_msg.attitude_setpoint[2] = msg.orientation.z;
-    encode_msg.attitude_setpoint[3] = msg.orientation.w;
+    // encode_msg.attitude_setpoint[0] = msg.orientation.x;
+    // encode_msg.attitude_setpoint[1] = msg.orientation.y;
+    // encode_msg.attitude_setpoint[2] = msg.orientation.z;
+    // encode_msg.attitude_setpoint[3] = msg.orientation.w;
+    Eigen::Quaternionf q;
+    q.w() = msg.orientation.w;
+    q.x() = msg.orientation.x;
+    q.y() = msg.orientation.y;
+    q.z() = msg.orientation.z;
+    Eigen::Vector3f euler;
+    get_euler_from_q(euler, q);
+    encode_msg.attitude_setpoint[0] = euler(0);
+    encode_msg.attitude_setpoint[1] = euler(1);
+    encode_msg.attitude_setpoint[2] = euler(2);
     encode_msg.throttle_setpoint = std::min(std::max(msg.thrust, 0.0f), 1.0f);
     const unsigned char* bytes = reinterpret_cast<const unsigned char*>(&encode_msg);
     std::vector<unsigned char> encode_bytes(bytes, bytes + sizeof(control_cmd_t));

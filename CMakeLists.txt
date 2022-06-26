@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   mavros_msgs
 )
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -29,6 +30,8 @@ catkin_package(
   nav_msgs
   geometry_msgs
   mavros_msgs
+  DEPENDS
+  EIGEN3
 )
 
 include_directories(
@@ -38,7 +41,7 @@ include_directories(
 
 add_library(image_driver_nodelet src/image_driver_nodelet.cpp)
 target_include_directories(image_driver_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
-target_link_libraries(image_driver_nodelet PUBLIC ${catkin_LIBRARIES})# Eigen3::Eigen)
+target_link_libraries(image_driver_nodelet PUBLIC ${catkin_LIBRARIES} Eigen3::Eigen)
 add_dependencies(image_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 install(
@@ -49,7 +52,7 @@ RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_library(imu_driver_nodelet src/imu_driver_nodelet.cpp)
 target_include_directories(imu_driver_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
-target_link_libraries(imu_driver_nodelet PUBLIC ${catkin_LIBRARIES})# Eigen3::Eigen)
+target_link_libraries(imu_driver_nodelet PUBLIC ${catkin_LIBRARIES} Eigen3::Eigen)
 add_dependencies(imu_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 install(
@@ -60,7 +63,7 @@ RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_library(lidar_driver_nodelet src/lidar_driver_nodelet.cpp)
 target_include_directories(lidar_driver_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
-target_link_libraries(lidar_driver_nodelet PUBLIC ${catkin_LIBRARIES})# Eigen3::Eigen)
+target_link_libraries(lidar_driver_nodelet PUBLIC ${catkin_LIBRARIES} Eigen3::Eigen)
 add_dependencies(lidar_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 install(
@@ -71,7 +74,7 @@ RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_library(control_driver_nodelet src/control_driver_nodelet.cpp)
 target_include_directories(control_driver_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
-target_link_libraries(control_driver_nodelet PUBLIC ${catkin_LIBRARIES})# Eigen3::Eigen)
+target_link_libraries(control_driver_nodelet PUBLIC ${catkin_LIBRARIES} Eigen3::Eigen)
 add_dependencies(control_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 install(

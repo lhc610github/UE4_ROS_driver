@@ -77,7 +77,7 @@ void ImageDriver::threadCB(const ros::TimerEvent&) {
     serv_addr.sin_addr.s_addr = inet_addr(IP_ADRR_.c_str());
 
     if (bind(sockfd, (struct sockaddr*)& serv_addr, sizeof(serv_addr))) {
-        std::cout << "Bind error" << std::endl;
+        std::cout << "Bind error" << IP_PORT_<<  std::endl;
     }
     if (listen(sockfd, 3) < 0) {
         std::cout << "listen error" << std::endl;

@@ -51,17 +51,21 @@ void ControlDriver::onInit() {
     servaddr.sin_family    = AF_INET;
     servaddr.sin_port = htons(IP_PORT_); 
     servaddr.sin_addr.s_addr = inet_addr(IP_ADRR_.c_str());
-    if ( bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-        std::cout << "Bind error" << std::endl;
-    }
-    if ( connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-        std::cout << "connect error" << std::endl;
-    }
+
+    // std::cout << "init succsed " << IP_PORT_<<  std::endl;
+    // if ( bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
+    //     std::cout << "Bind error" << IP_PORT_<<  std::endl;
+    // }
+    // if ( connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
+    //     std::cout << "connect error" << std::endl;
+    // }
 }
 
 void ControlDriver::cmdCB(const mavros_msgs::AttitudeTarget::ConstPtr &msg) {
     std::vector<unsigned char> data = control_cmd_encode(*msg);
-    send(sockfd, data.data(), data.size(), MSG_CONFIRM);
+    std::cout << "hello " << std::endl;
+    sendto(sockfd, data.data(), data.size(), MSG_CONFIRM,(const sockaddr*)&servaddr,sizeof(sockaddr_in));
+    std::cout << "hello 111" << std::endl;
 }
 
 #include <pluginlib/class_list_macros.h>

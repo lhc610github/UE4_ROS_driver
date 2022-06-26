@@ -51,12 +51,12 @@ void ImuDriver::threadCB(const ros::TimerEvent&) {
     servaddr.sin_family    = AF_INET;
     servaddr.sin_port = htons(IP_PORT_); 
     servaddr.sin_addr.s_addr = inet_addr(IP_ADRR_.c_str());
-    if ( bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-        std::cout << "Bind error" << std::endl;
+    if ( bind(sockfd, (struct sockaddr *)&servaddr, sizeof(sockaddr_in)) < 0)  {
+        std::cout << "Bind error" << IP_PORT_<<  std::endl;
     }
-    if ( connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-        std::cout << "connect error" << std::endl;
-    }
+    // if ( connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
+    //     std::cout << "connect error" << std::endl;
+    // }
 
     unsigned char tmp_buffer[2*MB_LEN];
     std::vector<unsigned char> msg;
@@ -66,7 +66,8 @@ void ImuDriver::threadCB(const ros::TimerEvent&) {
 
     while (ros::ok()) {
         // valread = read(sockfd, tmp_buffer, MB_LEN);
-        valread = recv(sockfd, tmp_buffer, MB_LEN, MSG_WAITALL);
+        int len =  sizeof(sockaddr_in);
+        valread = recvfrom(sockfd, tmp_buffer, MB_LEN, MSG_WAITALL, (struct sockaddr *) &servaddr,  (socklen_t*) &len);
         if (valread <= 0) {
             if (valread < 0) {
                 ROS_ERROR_STREAM("[imu] Connect error ");

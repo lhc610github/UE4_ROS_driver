@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include "ue4_ros_drivers/config.h"
+#include "ue4_ros_drivers/udp_handler.h"
 
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
@@ -21,57 +22,45 @@ class ImuDriver : public nodelet::Nodelet {
     public:
         void onInit();
     private:
-        void threadCB(const ros::TimerEvent&);
+        // void threadCB(const ros::TimerEvent&);
+        void threadCB();
         ros::Publisher ImuPublisher_;
-        ros::Timer RunOnceTimer_;
+        // ros::Timer RunOnceTimer_;
+        std::thread recv_thread_;
         std::string IP_ADRR_;
         std::string topic_name_;
+        std::shared_ptr<UDPHandler> udp_handler_ptr;
         int IP_PORT_;
 };
 
 void ImuDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
+    // ros::NodeHandle nh;
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);
     priv_nh.param<std::string>("topic",  topic_name_, "imu");
     ImuPublisher_ = priv_nh.advertise<sensor_msgs::Imu>(topic_name_, 10);
-    RunOnceTimer_ =  priv_nh.createTimer(ros::Duration(0.01), &ImuDriver::threadCB, this, true);
-    RunOnceTimer_.start();
+    // RunOnceTimer_ =  nh.createTimer(ros::Duration(0.01), &ImuDriver::threadCB, this, true);
+    // RunOnceTimer_ =  priv_nh.createTimer(ros::Duration(0.01), &ImuDriver::threadCB, this, true);
+    // RunOnceTimer_.start();
+    recv_thread_ = std::thread(std::bind(&ImuDriver::threadCB, this));
 }
 
-void ImuDriver::threadCB(const ros::TimerEvent&) {
-    std::cout << "Start receiving imu data from " << IP_ADRR_ << ":" << IP_PORT_ << std::endl;
-    int sockfd, valread;
-    struct sockaddr_in servaddr;
-
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0)
-        std::cout << "ERROR open socket" << std::endl;
-
-    servaddr.sin_family    = AF_INET;
-    servaddr.sin_port = htons(IP_PORT_); 
-    servaddr.sin_addr.s_addr = inet_addr(IP_ADRR_.c_str());
-    if ( bind(sockfd, (struct sockaddr *)&servaddr, sizeof(sockaddr_in)) < 0)  {
-        std::cout << "Bind error" << IP_PORT_<<  std::endl;
-    }
-    // if ( connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-    //     std::cout << "connect error" << std::endl;
-    // }
-
+// void ImuDriver::threadCB(const ros::TimerEvent&) {
+void ImuDriver::threadCB() {
+    udp_handler_ptr.reset(new UDPHandler(IP_PORT_, false, IP_ADRR_));
     unsigned char tmp_buffer[2*MB_LEN];
     std::vector<unsigned char> msg;
     msg.clear();
-    // sockaddr src_addr;
-    // socklen_t src_addrlen = sizeof(src_addr);
 
     while (ros::ok()) {
-        // valread = read(sockfd, tmp_buffer, MB_LEN);
-        int len =  sizeof(sockaddr_in);
-        valread = recvfrom(sockfd, tmp_buffer, MB_LEN, MSG_WAITALL, (struct sockaddr *) &servaddr,  (socklen_t*) &len);
+        std::size_t valread = udp_handler_ptr->udp_recvfrom(tmp_buffer, sizeof(imu_data_t));
         if (valread <= 0) {
             if (valread < 0) {
                 ROS_ERROR_STREAM("[imu] Connect error ");
-                return;
+                msg.clear();
+                udp_handler_ptr.reset(new UDPHandler(IP_PORT_, false, IP_ADRR_));
+                continue;
             } else {
                 ROS_ERROR_STREAM("[imu] Client Disconnect ");
                 msg.clear();
@@ -87,7 +76,6 @@ void ImuDriver::threadCB(const ros::TimerEvent&) {
             msg.swap(rest_vec);
         }
     }
-
 }
 
 #include <pluginlib/class_list_macros.h>

@@ -8,6 +8,7 @@
 #include <queue>
 #include <vector>
 #include <cstring>
+#include <thread>
 
 /* ros msg type */
 #include <sensor_msgs/Image.h>
@@ -24,6 +25,7 @@
 #define MB_LEN 1048576
 #define LIDAR_BUF_SIZE 16*1800//480000
 
+#pragma pack(1)
 typedef struct {
     uint64_t timestamp;
     uint8_t data[ROW*COL];
@@ -56,6 +58,7 @@ typedef struct {
     float attitude_setpoint[3]; // roll pitch yaw
     float throttle_setpoint; // 0-1
 } control_cmd_t;
+#pragma pack()
 
 sensor_msgs::Image imge_data_decode(unsigned char* data) {
     img_data_t* decode_data = (img_data_t*)(data);
@@ -135,7 +138,10 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
     lidar_msg.row_step = lidar_msg.point_step * lidar_msg.width;
 
     lidar_msg.is_dense = true; 
-    std::vector<point_t> data_std(decode_data->point_cloud, decode_data->point_cloud + sizeof(point_t) * LIDAR_BUF_SIZE);
+    // std::vector<point_t> data_std(decode_data->point_cloud, decode_data->point_cloud + sizeof(point_t) * LIDAR_BUF_SIZE);
+    std::vector<point_t> data_std;//(decode_data->point_cloud, decode_data->point_cloud + sizeof(point_t) * LIDAR_BUF_SIZE);
+    data_std.resize(LIDAR_BUF_SIZE);
+    memcpy(data_std.data(), decode_data->point_cloud, sizeof(point_t)*LIDAR_BUF_SIZE);
     const unsigned char* bytes = reinterpret_cast<const unsigned char*>(data_std.data());
     std::vector<unsigned char> lidar_msg_data(bytes, bytes + sizeof(point_t) * LIDAR_BUF_SIZE);
     lidar_msg.data = std::move(lidar_msg_data);

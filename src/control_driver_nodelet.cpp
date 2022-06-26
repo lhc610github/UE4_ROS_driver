@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include "ue4_ros_drivers/config.h"
+#include "ue4_ros_drivers/udp_handler.h"
 
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
@@ -25,11 +26,8 @@ class ControlDriver : public nodelet::Nodelet {
         ros::Subscriber CmdSubscriber_;
         std::string IP_ADRR_;
         std::string topic_name_;
+        std::shared_ptr<UDPHandler> udp_handler_ptr;
         int IP_PORT_;
-
-        int sockfd, opt, valread;
-        struct sockaddr_in servaddr;
-
 };
 
 void ControlDriver::onInit() {
@@ -37,35 +35,13 @@ void ControlDriver::onInit() {
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);
     priv_nh.param<std::string>("topic",  topic_name_, "controller");
+    udp_handler_ptr.reset(new UDPHandler(IP_PORT_, false, IP_ADRR_));
     CmdSubscriber_ = priv_nh.subscribe(topic_name_, 10, &ControlDriver::cmdCB, this);
-
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0)
-        std::cout << "ERROR open socket" << std::endl;
-
-    opt = 1;
-    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        std::cout << "Socket set wrong" << std::endl;
-    }
-
-    servaddr.sin_family    = AF_INET;
-    servaddr.sin_port = htons(IP_PORT_); 
-    servaddr.sin_addr.s_addr = inet_addr(IP_ADRR_.c_str());
-
-    // std::cout << "init succsed " << IP_PORT_<<  std::endl;
-    // if ( bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-    //     std::cout << "Bind error" << IP_PORT_<<  std::endl;
-    // }
-    // if ( connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)  {
-    //     std::cout << "connect error" << std::endl;
-    // }
 }
 
 void ControlDriver::cmdCB(const mavros_msgs::AttitudeTarget::ConstPtr &msg) {
     std::vector<unsigned char> data = control_cmd_encode(*msg);
-    std::cout << "hello " << std::endl;
-    sendto(sockfd, data.data(), data.size(), MSG_CONFIRM,(const sockaddr*)&servaddr,sizeof(sockaddr_in));
-    std::cout << "hello 111" << std::endl;
+    udp_handler_ptr->udp_sendto(data.data(), data.size());
 }
 
 #include <pluginlib/class_list_macros.h>

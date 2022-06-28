@@ -83,5 +83,16 @@ ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+add_library(groundtruth_driver_nodelet src/groundtruth_driver_nodelet.cpp)
+target_include_directories(groundtruth_driver_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(groundtruth_driver_nodelet PUBLIC ${catkin_LIBRARIES} Eigen3::Eigen)
+add_dependencies(groundtruth_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+install(
+TARGETS groundtruth_driver_nodelet 
+ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 install(FILES nodelet_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

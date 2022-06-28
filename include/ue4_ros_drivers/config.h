@@ -17,6 +17,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/PointField.h>
 #include <mavros_msgs/AttitudeTarget.h>
+#include <nav_msgs/Odometry.h>
 
 #include "geometry_math_type.h"
 
@@ -58,6 +59,15 @@ typedef struct {
     float attitude_setpoint[3]; // roll pitch yaw
     float throttle_setpoint; // 0-1
 } control_cmd_t;
+
+typedef struct {
+    uint64_t timestamp;
+    float attitude[3];
+    float position[3];
+    float velocity[3];
+    float angular[3];
+} groudtruth_state_t;
+
 #pragma pack()
 
 sensor_msgs::Image imge_data_decode(unsigned char* data) {
@@ -115,6 +125,7 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
     sensor_msgs::PointCloud2 lidar_msg;
     lidar_msg.header.stamp = ros::Time((uint32_t)(decode_data->timestamp/1000000000), 
                                         (uint32_t)(decode_data->timestamp%1000000000));
+    lidar_msg.header.frame_id = "lidar";
     lidar_msg.height = 1;
     lidar_msg.width = LIDAR_BUF_SIZE;
     lidar_msg.fields.resize(4);
@@ -151,10 +162,6 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
 std::vector<unsigned char> control_cmd_encode(const mavros_msgs::AttitudeTarget& msg) {
     control_cmd_t encode_msg;
     encode_msg.timestamp = (uint64_t)(msg.header.stamp.toNSec());
-    // encode_msg.attitude_setpoint[0] = msg.orientation.x;
-    // encode_msg.attitude_setpoint[1] = msg.orientation.y;
-    // encode_msg.attitude_setpoint[2] = msg.orientation.z;
-    // encode_msg.attitude_setpoint[3] = msg.orientation.w;
     Eigen::Quaternionf q;
     q.w() = msg.orientation.w;
     q.x() = msg.orientation.x;
@@ -169,6 +176,32 @@ std::vector<unsigned char> control_cmd_encode(const mavros_msgs::AttitudeTarget&
     const unsigned char* bytes = reinterpret_cast<const unsigned char*>(&encode_msg);
     std::vector<unsigned char> encode_bytes(bytes, bytes + sizeof(control_cmd_t));
     return encode_bytes;
+}
+
+nav_msgs::Odometry groudtruth_state_decode(unsigned char* data) {
+    groudtruth_state_t* decode_data = (groudtruth_state_t*)(data);
+    nav_msgs::Odometry odom_msg;
+    odom_msg.header.stamp = ros::Time((uint32_t)(decode_data->timestamp/1000000000), 
+                                        (uint32_t)(decode_data->timestamp%1000000000));
+    Eigen::Vector3f att_e(decode_data->attitude[0],decode_data->attitude[1],decode_data->attitude[2]);
+
+    Eigen::Quaternionf att_q = Eigen::AngleAxisf(decode_data->attitude[0], Eigen::Vector3f::UnitX())
+                               * Eigen::AngleAxisf(decode_data->attitude[1], Eigen::Vector3f::UnitY())
+                               * Eigen::AngleAxisf(decode_data->attitude[2], Eigen::Vector3f::UnitZ());
+    odom_msg.pose.pose.position.x = decode_data->position[0];
+    odom_msg.pose.pose.position.y = decode_data->position[1];
+    odom_msg.pose.pose.position.z = decode_data->position[2];
+    odom_msg.pose.pose.orientation.x = att_q.x();
+    odom_msg.pose.pose.orientation.y = att_q.y();
+    odom_msg.pose.pose.orientation.z = att_q.z();
+    odom_msg.pose.pose.orientation.w = att_q.w();
+    odom_msg.twist.twist.angular.x = decode_data->angular[0];
+    odom_msg.twist.twist.angular.y = decode_data->angular[1];
+    odom_msg.twist.twist.angular.z = decode_data->angular[2];
+    odom_msg.twist.twist.linear.x = decode_data->velocity[0];
+    odom_msg.twist.twist.linear.y = decode_data->velocity[1];
+    odom_msg.twist.twist.linear.z = decode_data->velocity[2];
+    return odom_msg;
 }
 
 #endif

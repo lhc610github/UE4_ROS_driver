@@ -29,3 +29,11 @@
     </description>
   </class>
 </library>
+
+<library path="lib/libgroundtruth_driver_nodelet">
+  <class name="us4_ros_drivers/GroundTruthDriver" type="GroundTruthDriver" base_class_type="nodelet::Nodelet">
+    <description>
+        groundtruth odom driver plugin
+    </description>
+  </class>
+</library>

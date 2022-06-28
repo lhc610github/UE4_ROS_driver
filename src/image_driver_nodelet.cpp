@@ -32,7 +32,7 @@ class ImageDriver : public nodelet::Nodelet {
         std::thread receive_thread_;
         std::string IP_ADRR_;
         std::string topic_name_;
-        std::shared_ptr<TCPHandler> tcp_handler_ptr;
+        std::shared_ptr<TCPServerHandler> tcp_handler_ptr;
         int IP_PORT_;
         bool is_depth_img_;
 };
@@ -52,7 +52,7 @@ void ImageDriver::onInit() {
 
 // void ImageDriver::threadCB(const ros::TimerEvent&) {
 void ImageDriver::threadCB() {
-    tcp_handler_ptr.reset(new TCPHandler(IP_PORT_, MB_LEN, IP_ADRR_));
+    tcp_handler_ptr.reset(new TCPServerHandler(IP_PORT_, MB_LEN, IP_ADRR_));
     unsigned char tmp_buffer[2*MB_LEN];
     std::vector<unsigned char> msg;
     msg.clear();
@@ -62,7 +62,7 @@ void ImageDriver::threadCB() {
         if (valread <= 0) {
             if (valread < 0) {
                 std::cout << " Connect error " << std::endl;
-                tcp_handler_ptr.reset(new TCPHandler(IP_PORT_, MB_LEN, IP_ADRR_));
+                tcp_handler_ptr.reset(new TCPServerHandler(IP_PORT_, MB_LEN, IP_ADRR_));
                 continue;
             } else {
                 ROS_ERROR_STREAM("[camera] Client Disconnect ");

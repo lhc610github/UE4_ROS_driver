@@ -14,9 +14,9 @@
 #include <ctime>
 #include <iostream>
 #include <string>
-class TCPHandler {
+class TCPServerHandler {
     public:
-        TCPHandler(int port, int buf_len, std::string ip_addr):
+        TCPServerHandler(int port, int buf_len, std::string ip_addr):
         portno_(port),
         buf_len_(buf_len),
         ip_addr_(ip_addr) {
@@ -59,7 +59,7 @@ class TCPHandler {
             }
         }
 
-        ~TCPHandler() {
+        ~TCPServerHandler() {
             close(new_socket_);
             close(sockfd_);
         }

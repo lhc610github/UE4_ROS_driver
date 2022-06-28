@@ -13,5 +13,6 @@
 		<node pkg="nodelet" type="nodelet" name="imu" args="load us4_ros_drivers/ImuDriver $(arg manager)" output="screen"/>
 		<node pkg="nodelet" type="nodelet" name="lidar" args="load us4_ros_drivers/LidarDriver $(arg manager)" output="screen"/>
 		<node pkg="nodelet" type="nodelet" name="att_controller" args="load us4_ros_drivers/ControlDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="ground_truth" args="load us4_ros_drivers/GroundTruthDriver $(arg manager)" output="screen"/>
 	</group>
 </launch>

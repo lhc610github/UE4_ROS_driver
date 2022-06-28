@@ -33,12 +33,14 @@ class ImageDriver : public nodelet::Nodelet {
         std::string IP_ADRR_;
         std::string topic_name_;
         std::shared_ptr<TCPServerHandler> tcp_handler_ptr;
+        std::string frame_id_;
         int IP_PORT_;
         bool is_depth_img_;
 };
 
 void ImageDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
+    frame_id_ = priv_nh.getNamespace();
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);
     priv_nh.param<std::string>("topic",  topic_name_, "camera");
@@ -77,6 +79,7 @@ void ImageDriver::threadCB() {
         if (!is_depth_img_) {
             if (msg.size() >= sizeof(img_data_t)/sizeof(uint8_t)) {
                 auto ros_msg = imge_data_decode(msg.data());
+                ros_msg.header.frame_id = frame_id_;
                 ImgPublisher_.publish(ros_msg);
                 std::vector<unsigned char> rest_vec(msg.data()+sizeof(img_data_t)/sizeof(uint8_t), msg.data()+msg.size());
                 msg.swap(rest_vec);
@@ -84,6 +87,7 @@ void ImageDriver::threadCB() {
         } else {
             if (msg.size() >= sizeof(depth_img_data_t)/sizeof(uint8_t)) {
                 auto ros_msg = depth_imge_data_decode(msg.data());
+                ros_msg.header.frame_id = frame_id_;
                 ImgPublisher_.publish(ros_msg);
                 std::vector<unsigned char> rest_vec(msg.data()+sizeof(depth_img_data_t)/sizeof(uint8_t), msg.data()+msg.size());
                 msg.swap(rest_vec);

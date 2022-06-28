@@ -30,11 +30,13 @@ class ImuDriver : public nodelet::Nodelet {
         std::string IP_ADRR_;
         std::string topic_name_;
         std::shared_ptr<UDPServerHandler> udp_handler_ptr;
+        std::string frame_id_;
         int IP_PORT_;
 };
 
 void ImuDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
+    frame_id_ = priv_nh.getNamespace();
     // ros::NodeHandle nh;
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);
@@ -71,6 +73,7 @@ void ImuDriver::threadCB() {
         msg.insert(msg.end(), read_vec.begin(), read_vec.end());
         if (msg.size() >= sizeof(imu_data_t)/sizeof(uint8_t)) {
             auto ros_msg = imu_data_decode(msg.data());
+            ros_msg.header.frame_id = frame_id_;
             ImuPublisher_.publish(ros_msg);
             std::vector<unsigned char> rest_vec(msg.data()+sizeof(imu_data_t)/sizeof(uint8_t), msg.data()+msg.size());
             msg.swap(rest_vec);

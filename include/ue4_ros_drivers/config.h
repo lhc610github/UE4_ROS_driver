@@ -62,7 +62,7 @@ typedef struct {
 
 typedef struct {
     uint64_t timestamp;
-    float attitude[3];
+    float attitude[4]; // x y z w
     float position[3];
     float velocity[3];
     float angular[3];
@@ -185,16 +185,20 @@ nav_msgs::Odometry groudtruth_state_decode(unsigned char* data) {
                                         (uint32_t)(decode_data->timestamp%1000000000));
     Eigen::Vector3f att_e(decode_data->attitude[0],decode_data->attitude[1],decode_data->attitude[2]);
 
-    Eigen::Quaternionf att_q = Eigen::AngleAxisf(decode_data->attitude[0], Eigen::Vector3f::UnitX())
-                               * Eigen::AngleAxisf(decode_data->attitude[1], Eigen::Vector3f::UnitY())
-                               * Eigen::AngleAxisf(decode_data->attitude[2], Eigen::Vector3f::UnitZ());
+    // Eigen::Quaternionf att_q = Eigen::AngleAxisf(decode_data->attitude[0], Eigen::Vector3f::UnitX())
+    //                            * Eigen::AngleAxisf(decode_data->attitude[1], Eigen::Vector3f::UnitY())
+    //                            * Eigen::AngleAxisf(decode_data->attitude[2], Eigen::Vector3f::UnitZ());
     odom_msg.pose.pose.position.x = decode_data->position[0];
     odom_msg.pose.pose.position.y = decode_data->position[1];
     odom_msg.pose.pose.position.z = decode_data->position[2];
-    odom_msg.pose.pose.orientation.x = att_q.x();
-    odom_msg.pose.pose.orientation.y = att_q.y();
-    odom_msg.pose.pose.orientation.z = att_q.z();
-    odom_msg.pose.pose.orientation.w = att_q.w();
+    // odom_msg.pose.pose.orientation.x = att_q.x();
+    // odom_msg.pose.pose.orientation.y = att_q.y();
+    // odom_msg.pose.pose.orientation.z = att_q.z();
+    // odom_msg.pose.pose.orientation.w = att_q.w();
+    odom_msg.pose.pose.orientation.x = decode_data->attitude[0];
+    odom_msg.pose.pose.orientation.y = decode_data->attitude[1];
+    odom_msg.pose.pose.orientation.z = decode_data->attitude[2];
+    odom_msg.pose.pose.orientation.w = decode_data->attitude[3];
     odom_msg.twist.twist.angular.x = decode_data->angular[0];
     odom_msg.twist.twist.angular.y = decode_data->angular[1];
     odom_msg.twist.twist.angular.z = decode_data->angular[2];

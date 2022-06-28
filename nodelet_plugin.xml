@@ -37,3 +37,11 @@
     </description>
   </class>
 </library>
+
+<library path="lib/libtf_publish_nodelet">
+  <class name="us4_ros_drivers/TFPublisher" type="TFPublisher" base_class_type="nodelet::Nodelet">
+    <description>
+        tf publisher plugin
+    </description>
+  </class>
+</library>

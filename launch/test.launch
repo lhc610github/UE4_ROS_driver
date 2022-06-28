@@ -14,5 +14,14 @@
 		<node pkg="nodelet" type="nodelet" name="lidar" args="load us4_ros_drivers/LidarDriver $(arg manager)" output="screen"/>
 		<node pkg="nodelet" type="nodelet" name="att_controller" args="load us4_ros_drivers/ControlDriver $(arg manager)" output="screen"/>
 		<node pkg="nodelet" type="nodelet" name="ground_truth" args="load us4_ros_drivers/GroundTruthDriver $(arg manager)" output="screen"/>
+		<!-- tf plugin -->
+		<node pkg="nodelet" type="nodelet" name="transform_publish" args="load us4_ros_drivers/TFPublisher $(arg manager)" output="screen">
+			<remap from="~odom" to="ground_truth/ground_truth_odom"/>
+		</node>
+
+    	<node pkg="tf" type="static_transform_publisher" name="lidar_tf_publisher" args="0 0 1 0 0 0 $(arg robot) $(arg robot)/lidar 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="left_camera_tf_publisher" args="0.05 0.06 -0.1 -1.57 0 -1.57 $(arg robot) $(arg robot)/left_camera 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="right_camera_tf_publisher" args="0.05 -0.06 -0.1 -1.57 0 -1.57 $(arg robot) $(arg robot)/right_camera 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="imu_tf_publisher" args="0 0 0 0 0 0 $(arg robot) $(arg robot)/imu 1"/>
 	</group>
 </launch>

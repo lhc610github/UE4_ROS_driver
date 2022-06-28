@@ -36,7 +36,7 @@ class GroundTruthDriver : public nodelet::Nodelet {
 
 void GroundTruthDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
-    frame_id_ = priv_nh.getNamespace();
+    frame_id_ = "world";//priv_nh.getNamespace();
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);
     priv_nh.param<std::string>("topic",  topic_name_, "groundtruth_odom");

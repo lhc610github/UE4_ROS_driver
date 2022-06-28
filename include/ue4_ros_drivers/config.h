@@ -24,7 +24,7 @@
 #define ROW 480
 #define COL 640
 #define MB_LEN 1048576
-#define LIDAR_BUF_SIZE 16*1800//480000
+#define LIDAR_BUF_SIZE 16*1800
 
 #pragma pack(1)
 typedef struct {
@@ -51,6 +51,7 @@ typedef struct {
 
 typedef struct {
     uint64_t timestamp;
+    uint16_t point_cloud_num;
     point_t point_cloud[LIDAR_BUF_SIZE];
 } lidar_data_t;
 
@@ -127,7 +128,7 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
                                         (uint32_t)(decode_data->timestamp%1000000000));
     lidar_msg.header.frame_id = "lidar";
     lidar_msg.height = 1;
-    lidar_msg.width = LIDAR_BUF_SIZE;
+    lidar_msg.width = decode_data->point_cloud_num;
     lidar_msg.fields.resize(4);
     lidar_msg.fields[0].name = "x";
     lidar_msg.fields[1].name = "y";
@@ -151,10 +152,10 @@ sensor_msgs::PointCloud2 lidar_data_decode(unsigned char* data) {
     lidar_msg.is_dense = true; 
     // std::vector<point_t> data_std(decode_data->point_cloud, decode_data->point_cloud + sizeof(point_t) * LIDAR_BUF_SIZE);
     std::vector<point_t> data_std;//(decode_data->point_cloud, decode_data->point_cloud + sizeof(point_t) * LIDAR_BUF_SIZE);
-    data_std.resize(LIDAR_BUF_SIZE);
-    memcpy(data_std.data(), decode_data->point_cloud, sizeof(point_t)*LIDAR_BUF_SIZE);
+    data_std.resize(decode_data->point_cloud_num);
+    memcpy(data_std.data(), decode_data->point_cloud, sizeof(point_t)*decode_data->point_cloud_num);
     const unsigned char* bytes = reinterpret_cast<const unsigned char*>(data_std.data());
-    std::vector<unsigned char> lidar_msg_data(bytes, bytes + sizeof(point_t) * LIDAR_BUF_SIZE);
+    std::vector<unsigned char> lidar_msg_data(bytes, bytes + sizeof(point_t) * decode_data->point_cloud_num);
     lidar_msg.data = std::move(lidar_msg_data);
     return lidar_msg;
 }
@@ -183,8 +184,6 @@ nav_msgs::Odometry groudtruth_state_decode(unsigned char* data) {
     nav_msgs::Odometry odom_msg;
     odom_msg.header.stamp = ros::Time((uint32_t)(decode_data->timestamp/1000000000), 
                                         (uint32_t)(decode_data->timestamp%1000000000));
-    Eigen::Vector3f att_e(decode_data->attitude[0],decode_data->attitude[1],decode_data->attitude[2]);
-
     // Eigen::Quaternionf att_q = Eigen::AngleAxisf(decode_data->attitude[0], Eigen::Vector3f::UnitX())
     //                            * Eigen::AngleAxisf(decode_data->attitude[1], Eigen::Vector3f::UnitY())
     //                            * Eigen::AngleAxisf(decode_data->attitude[2], Eigen::Vector3f::UnitZ());

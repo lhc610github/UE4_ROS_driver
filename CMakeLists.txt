@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   sensor_msgs
   mavros_msgs
+  tf2
+  tf
 )
 find_package(Eigen3 REQUIRED)
 
@@ -30,6 +32,8 @@ catkin_package(
   nav_msgs
   geometry_msgs
   mavros_msgs
+  tf2
+  tf
   DEPENDS
   EIGEN3
 )
@@ -90,6 +94,17 @@ add_dependencies(groundtruth_driver_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJE
 
 install(
 TARGETS groundtruth_driver_nodelet 
+ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+add_library(tf_publish_nodelet src/tf_publish_nodelet.cpp)
+target_include_directories(tf_publish_nodelet PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(tf_publish_nodelet PUBLIC ${catkin_LIBRARIES} Eigen3::Eigen)
+add_dependencies(tf_publish_nodelet ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+install(
+TARGETS tf_publish_nodelet 
 ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

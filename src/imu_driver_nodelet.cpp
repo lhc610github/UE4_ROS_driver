@@ -37,6 +37,7 @@ class ImuDriver : public nodelet::Nodelet {
 void ImuDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
     frame_id_ = priv_nh.getNamespace();
+    frame_id_.erase(0,1);
     // ros::NodeHandle nh;
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);

@@ -15,6 +15,8 @@
 #include "ue4_ros_drivers/config.h"
 #include "ue4_ros_drivers/udp_handler.h"
 
+#include <rosgraph_msgs/Clock.h>
+
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
 
@@ -24,7 +26,7 @@ class ImuDriver : public nodelet::Nodelet {
     private:
         // void threadCB(const ros::TimerEvent&);
         void threadCB();
-        ros::Publisher ImuPublisher_;
+        ros::Publisher ImuPublisher_, SimClockPublisher;
         // ros::Timer RunOnceTimer_;
         std::thread recv_thread_;
         std::string IP_ADRR_;
@@ -32,20 +34,20 @@ class ImuDriver : public nodelet::Nodelet {
         std::shared_ptr<UDPServerHandler> udp_handler_ptr;
         std::string frame_id_;
         int IP_PORT_;
+        bool use_sim_time_;
 };
 
 void ImuDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
     frame_id_ = priv_nh.getNamespace();
     frame_id_.erase(0,1);
-    // ros::NodeHandle nh;
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
     priv_nh.param<int>("port", IP_PORT_, 6766);
     priv_nh.param<std::string>("topic",  topic_name_, "imu");
+    priv_nh.param<bool>("use_sim_time", use_sim_time_, true);
     ImuPublisher_ = priv_nh.advertise<sensor_msgs::Imu>(topic_name_, 10);
-    // RunOnceTimer_ =  nh.createTimer(ros::Duration(0.01), &ImuDriver::threadCB, this, true);
-    // RunOnceTimer_ =  priv_nh.createTimer(ros::Duration(0.01), &ImuDriver::threadCB, this, true);
-    // RunOnceTimer_.start();
+    if (use_sim_time_)
+        SimClockPublisher = priv_nh.advertise<rosgraph_msgs::Clock>("/clock", 10);
     recv_thread_ = std::thread(std::bind(&ImuDriver::threadCB, this));
 }
 
@@ -76,6 +78,11 @@ void ImuDriver::threadCB() {
             auto ros_msg = imu_data_decode(msg.data());
             ros_msg.header.frame_id = frame_id_;
             ImuPublisher_.publish(ros_msg);
+            if (use_sim_time_) {
+                rosgraph_msgs::Clock clock_msg;
+                clock_msg.clock = ros_msg.header.stamp;
+                SimClockPublisher.publish(clock_msg);
+            }
             std::vector<unsigned char> rest_vec(msg.data()+sizeof(imu_data_t)/sizeof(uint8_t), msg.data()+msg.size());
             msg.swap(rest_vec);
         }

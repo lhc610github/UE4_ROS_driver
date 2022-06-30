@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   mavros_msgs
   tf2
   tf
+  rosgraph_msgs
 )
 find_package(Eigen3 REQUIRED)
 
@@ -34,6 +35,7 @@ catkin_package(
   mavros_msgs
   tf2
   tf
+  rosgraph_msgs
   DEPENDS
   EIGEN3
 )

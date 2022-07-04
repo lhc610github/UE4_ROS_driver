@@ -1,0 +1,31 @@
+left_camera:
+  address: 192.168.1.180
+  port: 6766
+  topic: image_raw
+  is_depth_img: false
+right_camera:
+  address: 192.168.1.180
+  port: 6767
+  topic: image_raw
+  is_depth_img: false
+depth_camera:
+  address: 192.168.1.180
+  port: 6768
+  topic: image_raw
+  is_depth_img: true
+imu:
+  address: 192.168.1.180
+  port: 6774
+  topic: data_raw
+lidar:
+  address: 192.168.1.180
+  port: 6773
+  topic: scan
+att_controller:
+  address: 192.168.1.23
+  port: 6771
+  topic: control_cmd
+ground_truth:
+  address: 192.168.1.180
+  port: 6775
+  topic: ground_truth_odom

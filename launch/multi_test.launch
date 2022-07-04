@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="robot" default="drone1"/>
+    <arg name="manager" default="$(arg robot)_driver_manager"/>
+    <arg name="use_sim_time" default="true"/>
+	<param name="use_sim_time" value="$(arg use_sim_time)"/>
+	<group ns="$(arg robot)">
+		<!-- nodelet manager -->
+		<node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen"/>
+        <!-- sensors plugin -->
+		<rosparam file="$(find ue4_ros_drivers)/config/$(arg robot)/node.yaml"/>
+		<node pkg="nodelet" type="nodelet" name="left_camera" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="right_camera" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="depth_camera" args="load us4_ros_drivers/ImageDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="imu" args="load us4_ros_drivers/ImuDriver $(arg manager)" output="screen">
+			<param name="~use_sim_time" value="$(arg use_sim_time)"/>
+		</node>
+		<node pkg="nodelet" type="nodelet" name="lidar" args="load us4_ros_drivers/LidarDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="att_controller" args="load us4_ros_drivers/ControlDriver $(arg manager)" output="screen"/>
+		<node pkg="nodelet" type="nodelet" name="ground_truth" args="load us4_ros_drivers/GroundTruthDriver $(arg manager)" output="screen"/>
+		<!-- tf plugin -->
+		<node pkg="nodelet" type="nodelet" name="transform_publish" args="load us4_ros_drivers/TFPublisher $(arg manager)" output="screen">
+			<remap from="~odom" to="ground_truth/ground_truth_odom"/>
+		</node>
+
+    	<node pkg="tf" type="static_transform_publisher" name="lidar_tf_publisher" args="0 0 1 0 0 0 $(arg robot) $(arg robot)/lidar 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="left_camera_tf_publisher" args="0.5 0.06 -0.1 -1.57 0 -1.57 $(arg robot) $(arg robot)/left_camera 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="right_camera_tf_publisher" args="0.5 -0.06 -0.1 -1.57 0 -1.57 $(arg robot) $(arg robot)/right_camera 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="imu_tf_publisher" args="0 0 0 0 0 0 $(arg robot) $(arg robot)/imu 1"/>
+	</group>
+</launch>

@@ -17,6 +17,7 @@ roslaunch ue4_ros_drivers test.launch
 ```
 For multi drones:
 ```
+source devel/setup.bash
 roslaunch ue4_ros_drivers multi_test.launch robot:=drone$ID use_sim_time:=$SIM_TIME
 ```
 
@@ -82,7 +83,7 @@ lidar:
   port: 6773
   topic: scan
 att_controller:
-  address: 192.168.1.23 # UE4_WINDOW_PC IP address
+  address: 192.168.1.23 # UE4_WINDOWS_PC IP address
   port: 6771
   topic: control_cmd
 ground_truth:
@@ -90,3 +91,39 @@ ground_truth:
   port: 6775
   topic: ground_truth_odom
 ```
+
+`config/drone$ID/node.yaml:` <===> `$UE4_WINDOWS_FOLDER/Blocks/Config/Node$ID.json`
+```
+{
+    "left_camera": {
+        "address": "192.168.1.180", <--- ROS_PC IP address
+        "port": 6766
+    },
+    "right_camera": {
+        "address": "192.168.1.180", <--- ROS_PC IP address
+        "port": 6767
+    },
+    "depth_camera": {
+        "address": "192.168.1.180", <--- ROS_PC IP address
+        "port": 6768
+    },
+    "imu": {
+        "address": "192.168.1.180", <--- ROS_PC IP address
+        "port": 6774
+    },
+    "lidar": {
+        "address": "192.168.1.180", <--- ROS_PC IP address
+        "port": 6773
+    },
+    "att_controller": {
+        "address": "192.168.1.23", <--- UE4_WINDOWS_PC IP address
+        "port": 6771
+    },
+    "ground_truth": {
+        "address": "192.168.1.180", <--- ROS_PC IP address
+        "port": 6775
+    }
+}
+```
+## Demo
+![rviz_demo](doc/rviz.png)

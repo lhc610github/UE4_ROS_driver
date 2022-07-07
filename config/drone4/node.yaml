@@ -3,16 +3,28 @@ left_camera:
   port: 9766
   topic: image_raw
   is_depth_img: false
+  fx: 320
+  fy: 320
+  cx: 320
+  cy: 240
 right_camera:
   address: 192.168.1.180
   port: 9767
   topic: image_raw
   is_depth_img: false
+  fx: 320
+  fy: 320
+  cx: 320
+  cy: 240
 depth_camera:
   address: 192.168.1.180
   port: 9768
   topic: image_raw
   is_depth_img: true
+  fx: 320
+  fy: 320
+  cx: 320
+  cy: 240
 imu:
   address: 192.168.1.180
   port: 9774

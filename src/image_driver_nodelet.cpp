@@ -36,6 +36,7 @@ class ImageDriver : public nodelet::Nodelet {
         std::string frame_id_;
         int IP_PORT_;
         bool is_depth_img_;
+        double fx_, fy_, cx_, cy_;
 };
 
 void ImageDriver::onInit() {
@@ -46,8 +47,12 @@ void ImageDriver::onInit() {
     priv_nh.param<int>("port", IP_PORT_, 6766);
     priv_nh.param<std::string>("topic",  topic_name_, "camera");
     priv_nh.param<bool>("is_depth_img", is_depth_img_, false);
+    priv_nh.param<double>("fx", fx_, 320.0);
+    priv_nh.param<double>("fy", fy_, 320.0);
+    priv_nh.param<double>("cx", cx_, 320.0);
+    priv_nh.param<double>("cy", cy_, 240.0);
     ImgPublisher_ = priv_nh.advertise<sensor_msgs::Image>(topic_name_, 10);
-    // TODO: add image info msg set
+    ImgInfoPublisher_ = priv_nh.advertise<sensor_msgs::CameraInfo>(topic_name_+"/camera_info", 10);
     // RunOnceTimer_ = priv_nh.createTimer(ros::Duration(0.01), &ImageDriver::threadCB, this, true);
     // RunOnceTimer_.start();
     recv_thread_ = std::thread(std::bind(&ImageDriver::threadCB, this));
@@ -82,6 +87,26 @@ void ImageDriver::threadCB() {
                 auto ros_msg = imge_data_decode(msg.data());
                 ros_msg.header.frame_id = frame_id_;
                 ImgPublisher_.publish(ros_msg);
+                if (ImgInfoPublisher_.getNumSubscribers() > 0) {
+                    sensor_msgs::CameraInfo camera_info;
+                    camera_info.header = ros_msg.header;
+                    camera_info.header.frame_id = ros_msg.header.frame_id + "_optical_frame";
+                    camera_info.height = ros_msg.height;
+                    camera_info.width = ros_msg.width;
+                    camera_info.distortion_model = "plumb_bob";
+                    camera_info.D = std::vector<double>(5, 0.0);
+                    camera_info.K = {fx_, 0.0, cx_, 0.0, fy_, cy_, 0.0, 0.0, 1.0};
+                    camera_info.R = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+                    camera_info.P = {fx_, 0.0, cx_, 0.0, 0.0, fy_, cy_, 0.0, 0.0, 0.0, 1.0, 0.0};
+                    camera_info.binning_x = 0;
+                    camera_info.binning_y = 0;
+                    camera_info.roi.x_offset = 0;
+                    camera_info.roi.y_offset = 0;
+                    camera_info.roi.height = 0;
+                    camera_info.roi.width= 0;
+                    camera_info.roi.do_rectify = false;
+                    ImgInfoPublisher_.publish(camera_info);
+                }
                 std::vector<unsigned char> rest_vec(msg.data()+sizeof(img_data_t)/sizeof(uint8_t), msg.data()+msg.size());
                 msg.swap(rest_vec);
             }

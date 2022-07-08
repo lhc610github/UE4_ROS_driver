@@ -41,6 +41,7 @@ class ImageDriver : public nodelet::Nodelet {
 
 void ImageDriver::onInit() {
     ros::NodeHandle priv_nh(getPrivateNodeHandle());
+    ros::NodeHandle nh;
     frame_id_ = priv_nh.getNamespace();
     frame_id_.erase(0,1);
     priv_nh.param<std::string>("address", IP_ADRR_, "192.168.10.15");
@@ -51,10 +52,8 @@ void ImageDriver::onInit() {
     priv_nh.param<double>("fy", fy_, 320.0);
     priv_nh.param<double>("cx", cx_, 320.0);
     priv_nh.param<double>("cy", cy_, 240.0);
-    ImgPublisher_ = priv_nh.advertise<sensor_msgs::Image>(topic_name_, 10);
-    ImgInfoPublisher_ = priv_nh.advertise<sensor_msgs::CameraInfo>(topic_name_+"/camera_info", 10);
-    // RunOnceTimer_ = priv_nh.createTimer(ros::Duration(0.01), &ImageDriver::threadCB, this, true);
-    // RunOnceTimer_.start();
+    ImgPublisher_ = nh.advertise<sensor_msgs::Image>(topic_name_+"/image_raw", 10);
+    ImgInfoPublisher_ = nh.advertise<sensor_msgs::CameraInfo>(topic_name_+"/camera_info", 10);
     recv_thread_ = std::thread(std::bind(&ImageDriver::threadCB, this));
 }
 

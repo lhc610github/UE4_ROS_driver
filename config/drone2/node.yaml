@@ -1,7 +1,7 @@
 left_camera:
   address: 192.168.1.180
   port: 7766
-  topic: image_raw
+  topic: camera/left
   is_depth_img: false
   fx: 320
   fy: 320
@@ -10,7 +10,7 @@ left_camera:
 right_camera:
   address: 192.168.1.180
   port: 7767
-  topic: image_raw
+  topic: camera/right
   is_depth_img: false
   fx: 320
   fy: 320
@@ -19,7 +19,7 @@ right_camera:
 depth_camera:
   address: 192.168.1.180
   port: 7768
-  topic: image_raw
+  topic: camera/depth
   is_depth_img: true
   fx: 320
   fy: 320

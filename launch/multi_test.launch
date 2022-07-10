@@ -28,6 +28,6 @@
     	<node pkg="tf" type="static_transform_publisher" name="lidar_tf_publisher" args="0 0 1 0 0 0 $(arg robot) $(arg robot)/lidar 1"/>
     	<node pkg="tf" type="static_transform_publisher" name="left_camera_tf_publisher" args="0.5 0.06 -0.1 -1.57 0 -1.57 $(arg robot) $(arg robot)/left_camera 1"/>
     	<node pkg="tf" type="static_transform_publisher" name="right_camera_tf_publisher" args="0.5 -0.06 -0.1 -1.57 0 -1.57 $(arg robot) $(arg robot)/right_camera 1"/>
-    	<node pkg="tf" type="static_transform_publisher" name="imu_tf_publisher" args="0 0 0 0 0 0 $(arg robot) $(arg robot)/imu 1"/>
+    	<node pkg="tf" type="static_transform_publisher" name="imu_tf_publisher" args="0 0 0 -3.14 0 0 $(arg robot) $(arg robot)/imu 1"/>
 	</group>
 </launch>

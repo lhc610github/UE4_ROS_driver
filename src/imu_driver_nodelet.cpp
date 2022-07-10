@@ -77,11 +77,16 @@ void ImuDriver::threadCB() {
         if (msg.size() >= sizeof(imu_data_t)/sizeof(uint8_t)) {
             auto ros_msg = imu_data_decode(msg.data());
             ros_msg.header.frame_id = frame_id_;
-            ImuPublisher_.publish(ros_msg);
-            if (use_sim_time_) {
-                rosgraph_msgs::Clock clock_msg;
-                clock_msg.clock = ros_msg.header.stamp;
-                SimClockPublisher.publish(clock_msg);
+            static ros::Time last_timestamp = ros_msg.header.stamp;
+            if (ros_msg.header.stamp - last_timestamp > ros::Duration(0.0001)) {
+                /* for unexpected timestamp happened */
+                last_timestamp = ros_msg.header.stamp;
+                ImuPublisher_.publish(ros_msg);
+                if (use_sim_time_) {
+                    rosgraph_msgs::Clock clock_msg;
+                    clock_msg.clock = ros_msg.header.stamp;
+                    SimClockPublisher.publish(clock_msg);
+                }
             }
             std::vector<unsigned char> rest_vec(msg.data()+sizeof(imu_data_t)/sizeof(uint8_t), msg.data()+msg.size());
             msg.swap(rest_vec);

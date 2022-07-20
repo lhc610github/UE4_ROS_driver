@@ -1,0 +1,27 @@
+# /home/lhc/.config/tmuxinator/ue4_ros_test.yml
+
+name: ue4_ros_test
+root: ~/
+
+windows:
+  - multidrones:
+      root: ~/work/CASIC_match/Driver_ws
+      layout: b03f,205x54,0,0{102x54,0,0[102x27,0,0,0,102x26,0,28,3],102x54,103,0[102x27,103,0,1,102x26,103,28,2]}
+      panes:
+        - drone1:
+            - source devel/setup.zsh
+            - roslaunch ue4_ros_drivers multi_test.launch robot:=drone1
+        - drone2:
+            - source devel/setup.zsh
+            - sleep 5
+            - roslaunch ue4_ros_drivers multi_test.launch robot:=drone2 use_sim_time:=false
+        - drone3:
+            - source devel/setup.zsh
+            - sleep 5
+            - roslaunch ue4_ros_drivers multi_test.launch robot:=drone3 use_sim_time:=false
+        - drone4:
+            - source devel/setup.zsh
+            - sleep 5
+            - roslaunch ue4_ros_drivers multi_test.launch robot:=drone4 use_sim_time:=false
+
+  - htop: htop
